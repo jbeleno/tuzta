@@ -4,6 +4,17 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Questions_model extends CI_Model {
 
 	/**
+	 * Constructor
+	 *
+	 * @return	void
+	 */
+	public function __construct()
+    {
+        // Call the CI_Model constructor
+        parent::__construct();
+    }
+
+	/**
 	 * It creates a new question about entrepreneurship.
 	 * 
 	 * @param string $email 	user's email.
@@ -38,15 +49,15 @@ class Questions_model extends CI_Model {
 	 */
 	public function get_question($id_question) {
 		$this->db->select('question, answer, name AS entrepreneur, company, thumbnail');
-		$this->db->from('answers AS a');
-		$this->db->join('questions AS q', 'q.id = a.idQuestion');
-		$this->db->join('entrepreneur AS e', 'e.id = a.idEntrepreneur');
+		$this->db->from('questions AS q');
+		$this->db->join('answers AS a', 'q.id = a.idQuestion', 'left');
+		$this->db->join('entrepreneur AS e', 'e.id = a.idEntrepreneur', 'left');
 		$this->db->where('q.id', $id_question);
 		$query = $this->db->get();
 
 		return array(
 			'status' => 'OK',
-			'question' => $query->row();
+			'question' => $query->row()
 		);
 	}
 
@@ -59,13 +70,13 @@ class Questions_model extends CI_Model {
 	 *							request and a message in case of error.
 	 */
 	public function get_questions($offset = 0, $limit = 10) {
-		$this->db->select('question, email');
+		$this->db->select('id, question, email');
 		$this->db->limit($limit, $offset);
 		$query = $this->db->get('questions');
 
 		return array(
 			'status' => 'OK',
-			'question' => $query->result();
+			'questions' => $query->result()
 		);
 	}
 
